@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoDealer_Pipeline · Operator Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #B8251E;
+    --red-dark: #8A1816;
+    --red-soft: #FDEDEC;
+    --black: #0A0A0A;
+    --ink: #1B1B19;
+    --grey-900: #2C2C2A;
+    --grey-700: #5F5E5A;
+    --grey-500: #888780;
+    --grey-300: #D9D6CF;
+    --grey-200: #E8E6E0;
+    --grey-100: #F1EFE8;
+    --grey-50: #F8F7F3;
+    --paper: #FAF9F5;
+    --white: #FFFFFF;
+    --amber: #BA7517;
+    --green: #3B6D11;
+    --green-soft: #EAF3DE;
+    --amber-soft: #FAEEDA;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    background: var(--black);
+    color: var(--white);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--red);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    background: var(--red);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: -0.02em;
+    position: relative;
+  }
+  .brand-mark::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    width: 10px;
+    height: 10px;
+    border-top: 2px solid var(--red);
+    border-left: 2px solid var(--red);
+  }
+
+  .brand-text {
+    line-height: 1.1;
+  }
+  .brand-text .name {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+  }
+  .brand-text .sub {
+    font-size: 11px;
+    color: var(--grey-300);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pill {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--white);
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pill .dot {
+    width: 6px;
+    height: 6px;
+    background: #5DCAA5;
+    border-radius: 50%;
+  }
+
+  select.dark-select {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--white);
+    padding: 6px 28px 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    border-radius: 6px;
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3e%3cpath d='M1 1l4 4 4-4' stroke='%23ffffff' stroke-width='1.5' fill='none' stroke-linecap='round'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+
+  .page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--grey-300);
+  }
+  .page-header .title-block .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--red);
+    margin-bottom: 6px;
+  }
+  .page-header .title-block h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 38px;
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .page-header .title-block .meta {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--grey-700);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .page-header .title-block .meta code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: var(--grey-100);
+    padding: 2px 8px;
+    border-radius: 3px;
+    color: var(--grey-900);
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .filter-bar select {
+    background: var(--white);
+    border: 1px solid var(--grey-300);
+    color: var(--ink);
+    padding: 9px 32px 9px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    border-radius: 6px;
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3e%3cpath d='M1 1l4 4 4-4' stroke='%231B1B19' stroke-width='1.5' fill='none' stroke-linecap='round'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    transition: border-color .15s;
+  }
+  .filter-bar select:hover { border-color: var(--grey-700); }
+  .filter-bar button {
+    background: var(--red);
+    color: var(--white);
+    border: none;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .filter-bar button:hover { background: var(--red-dark); }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .kpi {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    border-radius: 8px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--red);
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .kpi:hover::before { opacity: 1; }
+  .kpi .label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--grey-700);
+    margin-bottom: 10px;
+  }
+  .kpi .value {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 36px;
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .kpi .delta {
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .kpi .delta.up { color: var(--green); }
+  .kpi .delta.down { color: var(--red); }
+  .kpi .delta.neutral { color: var(--grey-700); }
+
+  .section {
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+  }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--grey-200);
+  }
+  .section-head h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 22px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .section-head .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--red);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+  }
+
+  .funnel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .funnel-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 120px;
+    gap: 16px;
+    align-items: center;
+  }
+  .funnel-row .stage {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--grey-900);
+  }
+  .funnel-row .stage .seq {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background: var(--ink);
+    color: var(--white);
+    text-align: center;
+    line-height: 18px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    border-radius: 3px;
+    margin-right: 8px;
+  }
+  .funnel-row .bar-wrap {
+    background: var(--grey-100);
+    height: 36px;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .funnel-row .bar {
+    position: absolute;
+    inset: 0;
+    background: var(--red);
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    color: var(--white);
+    font-weight: 600;
+    font-size: 13px;
+    border-radius: 4px;
+  }
+  .funnel-row .pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--grey-700);
+    text-align: right;
+  }
+  .funnel-row .pct strong { color: var(--ink); font-weight: 600; }
+
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  table.data {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.data thead th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--grey-700);
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--grey-300);
+  }
+  table.data thead th.num { text-align: right; }
+  table.data tbody td {
+    padding: 12px;
+    border-bottom: 1px solid var(--grey-100);
+    color: var(--ink);
+  }
+  table.data tbody tr:last-child td { border-bottom: none; }
+  table.data tbody td.num {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+  table.data tbody tr:hover { background: var(--grey-50); }
+  table.data tbody td .loc-tag {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--red);
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge.warn { background: var(--amber-soft); color: var(--amber); }
+  .badge.ok { background: var(--green-soft); color: var(--green); }
+  .badge.bad { background: var(--red-soft); color: var(--red); }
+
+  .perf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .perf-col h3 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--red);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--grey-200);
+  }
+  .perf-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--grey-100);
+  }
+  .perf-row:last-child { border-bottom: none; }
+  .perf-row .k { font-size: 13px; color: var(--grey-700); }
+  .perf-row .v {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .inv-stat {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--grey-200);
+  }
+  .inv-stat .big {
+    font-family: 'Instrument Serif', serif;
+    font-size: 44px;
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .inv-stat .lbl {
+    font-size: 13px;
+    color: var(--grey-700);
+  }
+
+  .footer {
+    margin-top: 32px;
+    padding: 18px 0;
+    border-top: 1px solid var(--grey-300);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--grey-700);
+  }
+  .footer code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--grey-100);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .row-2, .perf-grid { grid-template-columns: 1fr; }
+    .page { padding: 20px; }
+    .page-header { flex-direction: column; align-items: flex-start; gap: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">A</div>
+    <div class="brand-text">
+      <div class="name">AutoDealer Group</div>
+      <div class="sub">Marketing Ops · Internal</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="pill"><span class="dot"></span>System healthy</span>
+    <select class="dark-select">
+      <option>EN</option>
+      <option>中文</option>
+    </select>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="page-header">
+    <div class="title-block">
+      <div class="eyebrow">AutoDealer_Pipeline</div>
+      <h1>Operator Dashboard</h1>
+      <div class="meta">
+        <span>Last refresh: 12 min ago</span>
+        <span>·</span>
+        <code>schema: auto_dealer_prod</code>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <select>
+        <option>All locations</option>
+        <option>Lafayette</option>
+        <option>Bloomington</option>
+        <option>Champaign</option>
+        <option>Atlanta</option>
+        <option>Boston</option>
+        <option>Dallas</option>
+        <option>Bay Area</option>
+      </select>
+      <select>
+        <option>Last 30 days</option>
+        <option>Last 7 days</option>
+        <option>Last 90 days</option>
+      </select>
+      <button>Refresh</button>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="label">T1 Ingested</div>
+      <div class="value">12,438</div>
+      <div class="delta up">↑ 8.2% vs prev period</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Qualified</div>
+      <div class="value">3,217</div>
+      <div class="delta neutral">25.9% of ingest</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Active in Flow</div>
+      <div class="value">2,984</div>
+      <div class="delta up">↑ 5.4%</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Avg Open Rate</div>
+      <div class="value">34.2%</div>
+      <div class="delta up">↑ 1.8 pts</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Avg CTR</div>
+      <div class="value">6.8%</div>
+      <div class="delta down">↓ 0.4 pts</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>Pipeline funnel</h2>
+      <span class="num">01 · DATA FLOW</span>
+    </div>
+    <div class="funnel">
+      <div class="funnel-row">
+        <div class="stage"><span class="seq">01</span>T1 ingested</div>
+        <div class="bar-wrap"><div class="bar" style="width:100%">12,438</div></div>
+        <div class="pct"><strong>100.0%</strong></div>
+      </div>
+      <div class="funnel-row">
+        <div class="stage"><span class="seq">02</span>Tagged</div>
+        <div class="bar-wrap"><div class="bar" style="width:78%">9,702</div></div>
+        <div class="pct"><strong>78.0%</strong></div>
+      </div>
+      <div class="funnel-row">
+        <div class="stage"><span class="seq">03</span>Qualified</div>
+        <div class="bar-wrap"><div class="bar" style="width:25.9%">3,217</div></div>
+        <div class="pct"><strong>25.9%</strong></div>
+      </div>
+      <div class="funnel-row">
+        <div class="stage"><span class="seq">04</span>Entered flow</div>
+        <div class="bar-wrap"><div class="bar" style="width:24.0%">2,984</div></div>
+        <div class="pct"><strong>24.0%</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row-2">
+
+    <div class="section">
+      <div class="section-head">
+        <h2>Email performance</h2>
+        <span class="num">02 · MAILCHIMP</span>
+      </div>
+      <div class="perf-grid">
+        <div class="perf-col">
+          <h3>Onboarding · Day 0</h3>
+          <div class="perf-row"><span class="k">Sent</span><span class="v">2,984</span></div>
+          <div class="perf-row"><span class="k">Delivered</span><span class="v">2,841</span></div>
+          <div class="perf-row"><span class="k">Open rate</span><span class="v">41.3%</span></div>
+          <div class="perf-row"><span class="k">CTR</span><span class="v">4.2%</span></div>
+          <div class="perf-row"><span class="k">Unsubscribe</span><span class="v">0.3%</span></div>
+        </div>
+        <div class="perf-col">
+          <h3>Weekly cars · Day 3+</h3>
+          <div class="perf-row"><span class="k">Sent</span><span class="v">14,287</span></div>
+          <div class="perf-row"><span class="k">Delivered</span><span class="v">13,612</span></div>
+          <div class="perf-row"><span class="k">Open rate</span><span class="v">32.7%</span></div>
+          <div class="perf-row"><span class="k">CTR</span><span class="v">7.6%</span></div>
+          <div class="perf-row"><span class="k">Unsubscribe</span><span class="v">0.6%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2>Inventory coverage</h2>
+        <span class="num">03 · AUTOCAC.COM</span>
+      </div>
+      <div class="inv-stat">
+        <span class="big">847</span>
+        <span class="lbl">cars in stock across 7 locations</span>
+      </div>
+      <div class="perf-row"><span class="k">Last scrape</span><span class="v">12 min ago</span></div>
+      <div class="perf-row"><span class="k">Recommended this week</span><span class="v">3,142</span></div>
+      <div class="perf-row"><span class="k">Avg cars per email</span><span class="v">4.6 / 5</span></div>
+      <div class="perf-row">
+        <span class="k">Low inventory alert</span>
+        <span class="badge warn">1 · BAY AREA</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>By location</h2>
+      <span class="num">04 · BREAKDOWN</span>
+    </div>
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Location</th>
+          <th class="num">Qualified</th>
+          <th class="num">In flow</th>
+          <th class="num">Open rate</th>
+          <th class="num">CTR</th>
+          <th class="num">Inventory</th>
+          <th class="num">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="loc-tag"></span>Lafayette, IN</td>
+          <td class="num">412</td><td class="num">389</td>
+          <td class="num">36.1%</td><td class="num">8.2%</td>
+          <td class="num">132</td>
+          <td class="num"><span class="badge ok">OK</span></td>
+        </tr>
+        <tr>
+          <td><span class="loc-tag"></span>Bloomington, IN</td>
+          <td class="num">287</td><td class="num">265</td>
+          <td class="num">31.4%</td><td class="num">6.1%</td>
+          <td class="num">94</td>
+          <td class="num"><span class="badge ok">OK</span></td>
+        </tr>
+        <tr>
+          <td><span class="loc-tag"></span>Champaign, IL</td>
+          <td class="num">521</td><td class="num">488</td>
+          <td class="num">33.8%</td><td class="num">7.4%</td>
+          <td class="num">156</td>
+          <td class="num"><span class="badge ok">OK</span></td>
+        </tr>
+        <tr>
+          <td><span class="loc-tag"></span>Atlanta, GA</td>
+          <td class="num">438</td><td class="num">410</td>
+          <td class="num">32.2%</td><td class="num">6.5%</td>
+          <td class="num">118</td>
+          <td class="num"><span class="badge ok">OK</span></td>
+        </tr>
+        <tr>
+          <td><span class="loc-tag"></span>Boston, MA</td>
+          <td class="num">683</td><td class="num">641</td>
+          <td class="num">38.4%</td><td class="num">9.1%</td>
+          <td class="num">147</td>
+          <td class="num"><span class="badge ok">OK</span></td>
+        </tr>
+        <tr>
+          <td><span class="loc-tag"></span>Dallas, TX</td>
+          <td class="num">524</td><td class="num">487</td>
+          <td class="num">30.6%</td><td class="num">5.8%</td>
+          <td class="num">182</td>
+          <td class="num"><span class="badge ok">OK</span></td>
+        </tr>
+        <tr>
+          <td><span class="loc-tag"></span>Bay Area, CA</td>
+          <td class="num">352</td><td class="num">304</td>
+          <td class="num">35.7%</td><td class="num">7.9%</td>
+          <td class="num">18</td>
+          <td class="num"><span class="badge bad">LOW STOCK</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <span>AutoDealer_Pipeline Operator Dashboard · Mock data for design preview</span>
+    <span><code>GET /api/dashboard/*</code></span>
+  </div>
+
+</div>
+
+</body>
+</html>
